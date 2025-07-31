@@ -1,0 +1,230 @@
+import { useEffect, useState } from 'react';
+import { 
+  FiUsers, 
+  FiBook, 
+  FiBarChart2,
+  FiTrendingUp,
+  FiAward
+} from 'react-icons/fi';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
+import { Pie, Bar } from 'react-chartjs-2';
+import API from '../utils/axios';
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
+
+export default function AdminDashboard() {
+  const [stats, setStats] = useState({
+    users: 0,
+    questions: 0,
+    quizzesTaken: 0,
+    averageScore: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      // Replace with your actual API calls
+      const usersRes = await API.get('/auth/users/count');
+      const questionsRes = await API.get('/quiz/questions/count');
+      const resultsRes = await API.get('/quiz/results/stats');
+      
+      setStats({
+        users: usersRes.data.count,
+        questions: questionsRes.data.count,
+        quizzesTaken: resultsRes.data.totalQuizzes,
+        averageScore: resultsRes.data.averageScore
+      });
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Chart data
+  const userData = {
+    labels: ['Active', 'Inactive', 'Admin'],
+    datasets: [
+      {
+        data: [75, 15, 10], // Example data - replace with real data
+        backgroundColor: ['#10B981', '#F59E0B', '#3B82F6'],
+        borderWidth: 0,
+      },
+    ],
+  };
+
+  const questionData = {
+    labels: ['HTML', 'CSS', 'JS', 'React', 'Node.js'],
+    datasets: [
+      {
+        label: 'Questions by Topic',
+        data: [120, 90, 150, 80, 60], // Example data
+        backgroundColor: '#EF4444',
+      },
+    ],
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64 ml-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="ml-64 p-6 min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-800">Dashboard Overview</h1>
+          <p className="text-gray-600">Welcome back! Here's what's happening with your platform.</p>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Total Users</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.users}</p>
+              </div>
+              <div className="p-3 rounded-full bg-red-50 text-red-600">
+                <FiUsers className="text-xl" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Total Questions</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.questions}</p>
+              </div>
+              <div className="p-3 rounded-full bg-blue-50 text-blue-600">
+                <FiBook className="text-xl" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Quizzes Taken</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.quizzesTaken}</p>
+              </div>
+              <div className="p-3 rounded-full bg-green-50 text-green-600">
+                <FiTrendingUp className="text-xl" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Avg. Score</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.averageScore}%</p>
+              </div>
+              <div className="p-3 rounded-full bg-yellow-50 text-yellow-600">
+                <FiAward className="text-xl" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow border border-gray-100">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <FiUsers className="text-red-600" />
+              User Distribution
+            </h2>
+            <div className="h-64">
+              <Pie 
+                data={userData} 
+                options={{ 
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom'
+                    }
+                  }
+                }} 
+              />
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow border border-gray-100">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <FiBook className="text-red-600" />
+              Questions by Topic
+            </h2>
+            <div className="h-64">
+              <Bar 
+                data={questionData} 
+                options={{ 
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      beginAtZero: true
+                    }
+                  }
+                }} 
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="bg-white p-6 rounded-lg shadow border border-gray-100">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <FiBarChart2 className="text-red-600" />
+            Recent Activity
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-green-100 text-green-600">
+                  <FiUsers />
+                </div>
+                <div>
+                  <p className="font-medium">5 new users registered</p>
+                  <p className="text-sm text-gray-500">2 hours ago</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-blue-100 text-blue-600">
+                  <FiBook />
+                </div>
+                <div>
+                  <p className="font-medium">10 new questions added</p>
+                  <p className="text-sm text-gray-500">5 hours ago</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-purple-100 text-purple-600">
+                  <FiAward />
+                </div>
+                <div>
+                  <p className="font-medium">New high score: 95% on React quiz</p>
+                  <p className="text-sm text-gray-500">Yesterday</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
