@@ -13,19 +13,16 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+app.use(cors({ origin:  process.env.FRONTEND_URL, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
+
 app.use('/api/quiz', quizRoutes);
 
-// ✅ Add this default route
-app.get('/', (req, res) => {
-  res.send('🎯 Quizzy Backend is Live!');
-});
 
 // Error Handler
 app.use(errorHandler);
