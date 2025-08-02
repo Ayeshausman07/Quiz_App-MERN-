@@ -10,7 +10,7 @@ const {
   deleteQuestion,
   getAllResults,
   updateQuestion,
-  getDashboardStats // Add this new import
+  getDashboardStats 
 } = require('../controllers/quizController');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 
@@ -29,6 +29,6 @@ router.delete('/questions/:id', protect, adminOnly, deleteQuestion);
 router.get('/results', protect, adminOnly, getAllResults);
 
 // Admin dashboard stats
-router.get('/dashboard/stats', protect, adminOnly, getDashboardStats); // Add this new route
+router.get('/dashboard/stats', protect, adminOnly, getDashboardStats);
 
 module.exports = router;
