@@ -20,7 +20,7 @@ app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
-// Add this with your other route middleware
+
 app.use('/api/quiz', quizRoutes);
 
 
