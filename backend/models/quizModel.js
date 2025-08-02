@@ -33,7 +33,7 @@ enum: [
   'Bootstrap',
   'Firebase',
   'Other',
-  // Keeping your abbreviated version as well
+
 ],
     required: true
   }
